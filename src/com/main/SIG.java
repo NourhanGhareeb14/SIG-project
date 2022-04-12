@@ -197,6 +197,9 @@ public class SIG extends JFrame implements ActionListener, ListSelectionListener
                 JOptionPane.showMessageDialog(this, "Invoice item cannot be deleted.", "Error Message", JOptionPane.ERROR_MESSAGE);
             }
         } else if (Objects.equals(e.getActionCommand(), "create")) {
+            invoicesModel = new InvoicesModel(invoicesData);
+            invoiceTable.setModel(invoicesModel);
+            invoiceTable.validate();
             createInvoice();
         } else if (Objects.equals(e.getActionCommand(), "delete")) {
             try {
@@ -288,17 +291,21 @@ public class SIG extends JFrame implements ActionListener, ListSelectionListener
     }
 
     private void createInvoiceItem() {
-        String itemName = invoiceItemDialog.getItemName().getText();
-        String itemCountStr = invoiceItemDialog.getItemCount().getText();
-        String itemPriceStr = invoiceItemDialog.getItemPrice().getText();
-        invoiceItemDialog.setVisible(false);
-        int itemCount = Integer.parseInt(itemCountStr);
-        double itemPrice = Double.parseDouble(itemPriceStr);
-        Invoice invoice = invoicesData.get(invoiceTable.getSelectedRow());
-        InvoiceItem line = new InvoiceItem(itemName, itemPrice, itemCount, invoice);
-        invoice.addInvoiceItem(line);
-        invoiceDetailsModel.fireTableDataChanged();
-        invoicesModel.fireTableDataChanged();
+        if(invoiceTable.getSelectedRow() != -1) {
+            String itemName = invoiceItemDialog.getItemName().getText();
+            String itemCountStr = invoiceItemDialog.getItemCount().getText();
+            String itemPriceStr = invoiceItemDialog.getItemPrice().getText();
+            invoiceItemDialog.setVisible(false);
+            int itemCount = Integer.parseInt(itemCountStr);
+            double itemPrice = Double.parseDouble(itemPriceStr);
+            Invoice invoice = invoicesData.get(invoiceTable.getSelectedRow());
+            InvoiceItem line = new InvoiceItem(itemName, itemPrice, itemCount, invoice);
+            invoice.addInvoiceItem(line);
+            invoiceDetailsModel.fireTableDataChanged();
+            invoicesModel.fireTableDataChanged();
+        } else {
+            JOptionPane.showMessageDialog(this, "You must select an invoice first", "Error Message", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void createItemCancel() {
